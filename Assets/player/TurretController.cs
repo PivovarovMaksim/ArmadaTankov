@@ -4,59 +4,47 @@ using System.Collections;
 public class TurretController : MonoBehaviour
 {
     [Header("References")]
-    private VariableJoystick joystick; // Ссылка на джойстик
-    [SerializeField] private Transform turret; // Дуло/башня танка
-    [SerializeField] private Transform firePoint; // Точка вылета снаряда
-    [SerializeField] private GameObject bulletPrefab; // Префаб снаряда
+    [SerializeField] private JoystickController joystick;
+    [SerializeField] private Transform turret;
+    [SerializeField] private Transform firePoint; // Пустой объект на конце пушки
+    [SerializeField] private GameObject bulletPrefab;
     
     [Header("Turret Settings")]
-    [SerializeField] private float rotationSpeed = 5f; // Скорость поворота дула
+    [SerializeField] private float rotationSpeed = 5f;
     
     [Header("Shooting Settings")]
-    [SerializeField] private float fireDelay = 0.5f; // Задержка между выстрелами
+    [SerializeField] private float fireDelay = 0.5f;
     
     private float fireTimer = 0f;
     
     void Start()
     {
         fireTimer = 0f;
-        joystick = GameObject.Find("Joystick1").GetComponent<VariableJoystick>();
     }
     
     void Update()
     {
         if (joystick == null) return;
         
-        // Получаем ввод с джойстика
-        float horizontal = joystick.Horizontal;
-        float vertical = joystick.Vertical;
+        float horizontal = joystick.Horizontal();
+        float vertical = joystick.Vertical();
         
-        // Управление поворотом башни
         RotateTurret(horizontal, vertical);
-        
-        // Стрельба
-        //HandleShooting();
+        HandleShooting();
     }
     
     void RotateTurret(float horizontal, float vertical)
     {
-        // Если джойстик не в центре
         if (Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f)
         {
-            // Вычисляем угол направления
             float angle = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
-            
-            // Создаем целевое вращение
             Quaternion targetRotation = Quaternion.Euler(0f, -angle + 90f, 0f);
-            
-            // Плавно поворачиваем дуло
             turret.rotation = Quaternion.Slerp(turret.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
     }
     
     void HandleShooting()
     {
-        // Таймер стрельбы
         if (fireTimer > 0)
         {
             fireTimer -= Time.deltaTime;
@@ -71,10 +59,24 @@ public class TurretController : MonoBehaviour
     
     void Shoot()
     {
-        // Создаем снаряд
+        if (bulletPrefab == null || firePoint == null) return;
+        
+        // Создаём снаряд в позиции и с поворотом firePoint
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
-        // Уничтожаем снаряд через 3 секунды, чтобы не засорять сцену
-        Destroy(bullet, 5f);
+        
+        // Открепляем от башни/танка
+        bullet.transform.parent = null;
+        
+        // Передаём владельца (чтобы не сталкивался с игроком)
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            // Находим игрока (владельца)
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            bulletScript.SetOwner(player);
+        }
+        
+        // Уничтожаем через 3 секунды
+        Destroy(bullet, 3f);
     }
 }

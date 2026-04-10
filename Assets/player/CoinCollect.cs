@@ -12,7 +12,8 @@ public class CoinCollect : MonoBehaviour
     {
         cointText = GameObject.Find("CoinText").GetComponent<TMP_Text>();
         cointText.text = "Coins: " + coinCountValue;
-        audioSource = transform.Find("CoinSound").GetComponent<AudioSource>();
+        //audioSource = transform.Find("CoinSound").GetComponent<AudioSource>();
+        audioSource = GameObject.Find("CoinManager").transform.Find("CoinSound").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
