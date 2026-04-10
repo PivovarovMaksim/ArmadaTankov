@@ -311,7 +311,7 @@ MonoBehaviour:
   changeDirectionInterval: 3
   detectionDistance: 1
   bulletPrefab: {fileID: 7038491103671013019, guid: c30559e37664e2e42b0fffa6eb621065, type: 3}
-  firePoint: {fileID: 8804899187946148230}
+  firePoint: {fileID: 7072577714623850669}
 --- !u!65 &8299938817846723131
 BoxCollider:
   m_ObjectHideFlags: 0
